@@ -1,0 +1,240 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Define account structure
+typedef struct Account {
+    int acc_no;
+    char name[100];
+    int age;
+    char gender[10];
+    char address[200];
+    char phone[15];
+    char email[100];
+    float balance;
+    struct Account *next;
+} Account;
+
+// Head of the linked list
+Account *head = NULL;
+
+// Utility: Create new account node
+Account* create_account_node() {
+    Account *new_acc = (Account *)malloc(sizeof(Account));
+    printf("Enter Account Number: ");
+    scanf("%d", &new_acc->acc_no);
+    getchar();
+
+    printf("Enter Name: ");
+    fgets(new_acc->name, sizeof(new_acc->name), stdin);
+    new_acc->name[strcspn(new_acc->name, "\n")] = 0;
+
+    printf("Enter Age: ");
+    scanf("%d", &new_acc->age);
+    getchar();
+
+    printf("Enter Gender: ");
+    fgets(new_acc->gender, sizeof(new_acc->gender), stdin);
+    new_acc->gender[strcspn(new_acc->gender, "\n")] = 0;
+
+    printf("Enter Address: ");
+    fgets(new_acc->address, sizeof(new_acc->address), stdin);
+    new_acc->address[strcspn(new_acc->address, "\n")] = 0;
+
+    printf("Enter Phone: ");
+    fgets(new_acc->phone, sizeof(new_acc->phone), stdin);
+    new_acc->phone[strcspn(new_acc->phone, "\n")] = 0;
+
+    printf("Enter Email: ");
+    fgets(new_acc->email, sizeof(new_acc->email), stdin);
+    new_acc->email[strcspn(new_acc->email, "\n")] = 0;
+
+    printf("Enter Initial Balance: ");
+    scanf("%f", &new_acc->balance);
+
+    new_acc->next = NULL;
+    return new_acc;
+}
+
+// Add account to linked list
+void add_account() {
+    Account *new_acc = create_account_node();
+    new_acc->next = head;
+    head = new_acc;
+    printf("Account created successfully!\n");
+}
+
+// Display a single account
+void display_account(Account *acc) {
+    if (!acc) return;
+    printf("\n--- Account Details ---\n");
+    printf("Account Number: %d\n", acc->acc_no);
+    printf("Name: %s\n", acc->name);
+    printf("Age: %d\n", acc->age);
+    printf("Gender: %s\n", acc->gender);
+    printf("Address: %s\n", acc->address);
+    printf("Phone: %s\n", acc->phone);
+    printf("Email: %s\n", acc->email);
+    printf("Balance: %.2f\n", acc->balance);
+}
+
+// Display all accounts
+void display_all_accounts() {
+    if (!head) {
+        printf("No accounts available.\n");
+        return;
+    }
+    Account *temp = head;
+    while (temp) {
+        display_account(temp);
+        temp = temp->next;
+    }
+}
+
+// Search for an account
+Account* find_account(int acc_no) {
+    Account *temp = head;
+    while (temp) {
+        if (temp->acc_no == acc_no) return temp;
+        temp = temp->next;
+    }
+    return NULL;
+}
+
+// Deposit money
+void deposit() {
+    int acc_no;
+    float amt;
+    printf("Enter Account Number: ");
+    scanf("%d", &acc_no);
+    Account *acc = find_account(acc_no);
+    if (!acc) {
+        printf("Account not found.\n");
+        return;
+    }
+    printf("Enter amount to deposit: ");
+    scanf("%f", &amt);
+    acc->balance += amt;
+    printf("Deposit successful. New balance: %.2f\n", acc->balance);
+}
+
+// Withdraw money
+void withdraw() {
+    int acc_no;
+    float amt;
+    printf("Enter Account Number: ");
+    scanf("%d", &acc_no);
+    Account *acc = find_account(acc_no);
+    if (!acc) {
+        printf("Account not found.\n");
+        return;
+    }
+    printf("Enter amount to withdraw: ");
+    scanf("%f", &amt);
+    if (amt > acc->balance) {
+        printf("Insufficient funds.\n");
+        return;
+    }
+    acc->balance -= amt;
+    printf("Withdrawal successful. New balance: %.2f\n", acc->balance);
+}
+
+// Delete account
+void delete_account() {
+    int acc_no;
+    printf("Enter Account Number to delete: ");
+    scanf("%d", &acc_no);
+
+    Account *temp = head, *prev = NULL;
+    while (temp) {
+        if (temp->acc_no == acc_no) {
+            if (!prev) head = temp->next;
+            else prev->next = temp->next;
+            free(temp);
+            printf("Account deleted.\n");
+            return;
+        }
+        prev = temp;
+        temp = temp->next;
+    }
+    printf("Account not found.\n");
+}
+
+// Update account information
+void update_account() {
+    int acc_no;
+    printf("Enter Account Number to update: ");
+    scanf("%d", &acc_no);
+    getchar();
+    Account *acc = find_account(acc_no);
+    if (!acc) {
+        printf("Account not found.\n");
+        return;
+    }
+
+    printf("Update Name: ");
+    fgets(acc->name, sizeof(acc->name), stdin);
+    acc->name[strcspn(acc->name, "\n")] = 0;
+
+    printf("Update Address: ");
+    fgets(acc->address, sizeof(acc->address), stdin);
+    acc->address[strcspn(acc->address, "\n")] = 0;
+
+    printf("Update Phone: ");
+    fgets(acc->phone, sizeof(acc->phone), stdin);
+    acc->phone[strcspn(acc->phone, "\n")] = 0;
+
+    printf("Update Email: ");
+    fgets(acc->email, sizeof(acc->email), stdin);
+    acc->email[strcspn(acc->email, "\n")] = 0;
+
+    printf("Account updated successfully.\n");
+}
+
+// Search and display
+void search_account() {
+    int acc_no;
+    printf("Enter Account Number to search: ");
+    scanf("%d", &acc_no);
+    Account *acc = find_account(acc_no);
+    if (!acc) {
+        printf("Account not found.\n");
+    } else {
+        display_account(acc);
+    }
+}
+
+// Menu
+void menu() {
+    printf("\n====== Bank Management System ======\n");
+    printf("1. Create Account\n");
+    printf("2. View All Accounts\n");
+    printf("3. Deposit\n");
+    printf("4. Withdraw\n");
+    printf("5. Delete Account\n");
+    printf("6. Update Account\n");
+    printf("7. Search Account\n");
+    printf("8. Exit\n");
+    printf("Enter your choice: ");
+}
+
+int main() {
+    int choice;
+    do {
+        menu();
+        scanf("%d", &choice);
+        getchar();  // to consume newline
+        switch (choice) {
+            case 1: add_account(); break;
+            case 2: display_all_accounts(); break;
+            case 3: deposit(); break;
+            case 4: withdraw(); break;
+            case 5: delete_account(); break;
+            case 6: update_account(); break;
+            case 7: search_account(); break;
+            case 8: printf("Exiting...\n"); break;
+            default: printf("Invalid choice. Try again.\n");
+        }
+    } while (choice != 8);
+    return 0;
+}
